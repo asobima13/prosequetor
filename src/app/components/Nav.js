@@ -19,7 +19,7 @@ export default function Nav() {
     <header className="topnav">
       <div className="topnav-inner">
         <Link href="/" className="nav-brand">
-          Prosequetor
+          ProseQuetor
         </Link>
 
         <nav className="nav-links" aria-hidden={open ? "false" : "true"}>

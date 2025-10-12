@@ -9,11 +9,16 @@ export const metadata = {
 export default function Page() {
   return (
     <main style={{ padding: "2rem" }}>
-      <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+      <div
+        className="card"
+        style={{ textAlign: "center", marginBottom: "1.5rem" }}
+      >
         <h1>Jadwal Sidang Jaksa</h1>
         <p style={{ opacity: 0.85 }}>di Pengadilan Negeri Selong</p>
       </div>
-      <DatePickerClient />
+      <div className="card">
+        <DatePickerClient />
+      </div>
     </main>
   );
 }

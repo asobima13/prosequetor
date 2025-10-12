@@ -24,14 +24,49 @@ function isoToDisplay(iso) {
   return `${parseInt(d, 10)} ${mon} ${y}`;
 }
 
+function isoToDDMMYYYY(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function ddmmyyyyToIso(ddmmyyyy) {
+  if (!ddmmyyyy || !ddmmyyyy.match(/^\d{2}\/\d{2}\/\d{4}$/)) return null;
+  const [d, m, y] = ddmmyyyy.split("/");
+  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+}
+
 export default function DatePickerClient() {
   const todayIso = new Date().toISOString().slice(0, 10);
   const [selected, setSelected] = useState(todayIso);
+  const [inputDate, setInputDate] = useState(isoToDDMMYYYY(todayIso));
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const [pidResults, setPidResults] = useState([]);
   const [loadingPid, setLoadingPid] = useState(false);
   const [pidError, setPidError] = useState(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
+
+  function getCalendarDays(year, month) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+    const days = [];
+    const current = new Date(startDate);
+    while (current <= lastDay || days.length % 7 !== 0) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return days;
+  }
+
+  const selectedDate = new Date(selected);
+  const calendarDays = getCalendarDays(
+    selectedDate.getFullYear(),
+    selectedDate.getMonth()
+  );
 
   async function performSearch(iso) {
     setSearchPerformed(true);
@@ -67,24 +102,36 @@ export default function DatePickerClient() {
     performSearch(selected);
   }, []);
 
+  useEffect(() => {
+    setInputDate(isoToDDMMYYYY(selected));
+  }, [selected]);
+
   return (
     <section className="section">
       <h2>Tanggal {isoToDisplay(selected)}</h2>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <label style={{ color: "#cfe8ea" }} htmlFor="search-date">
-          Tanggal
-        </label>
+        {/* <label style={{ color: "#cfe8ea" }}>
+          Tanggal: {isoToDisplay(selected)}
+        </label> */}
         <input
-          id="search-date"
-          type="date"
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-          style={{ background: "#0b0b0b", color: "#e6eef2" }}
+          type="text"
+          value={inputDate}
+          readOnly
+          onClick={() => setShowCalendar(!showCalendar)}
+          placeholder="DD/MM/YYYY"
+          style={{
+            background: "#0b0b0b",
+            color: "#e6eef2",
+            padding: "8px",
+            borderRadius: "4px",
+            border: "1px solid #333",
+            cursor: "pointer",
+          }}
         />
-        <button className="cta" onClick={() => performSearch(selected)}>
+        {/* <button className="cta" onClick={() => performSearch(selected)}>
           Cari
-        </button>
+        </button> */}
         <button
           className="cta"
           onClick={() => {
@@ -95,17 +142,93 @@ export default function DatePickerClient() {
         >
           Hari ini
         </button>
+        <button
+          className="cta"
+          onClick={() => {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+            setSelected(tomorrowIso);
+            performSearch(tomorrowIso);
+          }}
+        >
+          Besok
+        </button>
       </div>
+
+      {showCalendar && (
+        <div
+          style={{
+            marginTop: 16,
+            background: "#0f0f0f",
+            padding: 16,
+            borderRadius: 8,
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(7, 1fr)",
+              gap: 8,
+            }}
+          >
+            {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
+              <div
+                key={day}
+                style={{
+                  textAlign: "center",
+                  color: "#cfe8ea",
+                  fontWeight: "bold",
+                }}
+              >
+                {day}
+              </div>
+            ))}
+            {calendarDays.map((day, i) => {
+              const dayIso = `${day.getFullYear()}-${String(
+                day.getMonth() + 1
+              ).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+              const isSelected = dayIso === selected;
+              const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
+              return (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setSelected(dayIso);
+                    setShowCalendar(false);
+                    performSearch(dayIso);
+                  }}
+                  style={{
+                    padding: 8,
+                    background: isSelected
+                      ? "#2fd4d7"
+                      : isCurrentMonth
+                      ? "#1a1a1a"
+                      : "#0b0b0b",
+                    color: isSelected ? "#021214" : "#e6eef2",
+                    border: "none",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    opacity: isCurrentMonth ? 1 : 0.5,
+                  }}
+                >
+                  {day.getDate()}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div style={{ marginTop: 16 }}>
         {!searchPerformed ? (
-          <p style={{ color: "#9aa0a6" }}>
-            Silakan pilih tanggal dan klik "Cari".
-          </p>
+          <p style={{ color: "#9aa0a6" }}>Silakan pilih tanggal</p>
         ) : loadingPid ? (
-          <p style={{ color: "#9aa0a6" }}>Loading...</p>
+          <p style={{ color: "#9aa0a6" }}>Sabar yak...</p>
         ) : pidError ? (
           <p style={{ color: "#f88" }}>Error: {pidError}</p>
+        ) : pidResults.length === 0 ? (
+          <p style={{ color: "#9aa0a6" }}>Tidak ada sidang</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
