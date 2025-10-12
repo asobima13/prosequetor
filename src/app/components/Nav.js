@@ -23,9 +23,9 @@ export default function Nav() {
         </Link>
 
         <nav className="nav-links" aria-hidden={open ? "false" : "true"}>
-          <Link href="/">Home</Link>
+          <Link href="/">Beranda</Link>
           <Link href="/JadwalSidang">Jadwal Sidang</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/contact">Kontak</Link>
         </nav>
 
         <button
