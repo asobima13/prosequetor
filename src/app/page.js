@@ -8,13 +8,6 @@ export default function RootPage() {
         <p className="tag">Responsive, Integrity, Honest, Serving</p>
         {/* <p className="lead">Kata-kata ini masih sedang dipikirkan.</p> */}
       </section>
-
-      <footer className="site-footer">
-        <small>
-          © {new Date().getFullYear()} ProseQuetor — Built with love by
-          BimaKerenBanget
-        </small>
-      </footer>
     </main>
   );
 }

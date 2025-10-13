@@ -25,7 +25,7 @@ function isoToDisplay(iso) {
 }
 
 export default function ClientDate() {
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD format in local timezone
   const [iso, setIso] = useState(() => {
     try {
       return localStorage.getItem("jadwal_selected") || todayIso;

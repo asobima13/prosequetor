@@ -26,6 +26,13 @@ export default function RootLayout({ children }) {
         <Nav />
 
         <main className="app-main">{children}</main>
+
+        <footer className="site-footer">
+          <small>
+            © {new Date().getFullYear()} ProseQuetor — Built with love by
+            BimaKerenBanget
+          </small>
+        </footer>
       </body>
     </html>
   );

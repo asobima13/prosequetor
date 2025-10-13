@@ -37,7 +37,7 @@ function ddmmyyyyToIso(ddmmyyyy) {
 }
 
 export default function DatePickerClient() {
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD format in local timezone
   const [selected, setSelected] = useState(todayIso);
   const [inputDate, setInputDate] = useState(isoToDDMMYYYY(todayIso));
   const [showCalendar, setShowCalendar] = useState(false);
@@ -107,10 +107,18 @@ export default function DatePickerClient() {
   }, [selected]);
 
   return (
-    <section className="section">
+    <section className="section" style={{ textAlign: "center" }}>
       <h2>Tanggal {isoToDisplay(selected)}</h2>
 
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          textAlign: "center",
+          justifyContent: "center",
+        }}
+      >
         {/* <label style={{ color: "#cfe8ea" }}>
           Tanggal: {isoToDisplay(selected)}
         </label> */}
@@ -135,7 +143,7 @@ export default function DatePickerClient() {
         <button
           className="cta"
           onClick={() => {
-            const today = new Date().toISOString().slice(0, 10);
+            const today = new Date().toLocaleDateString("sv-SE");
             setSelected(today);
             performSearch(today);
           }}
@@ -147,7 +155,7 @@ export default function DatePickerClient() {
           onClick={() => {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+            const tomorrowIso = tomorrow.toLocaleDateString("sv-SE");
             setSelected(tomorrowIso);
             performSearch(tomorrowIso);
           }}
@@ -222,7 +230,7 @@ export default function DatePickerClient() {
 
       <div style={{ marginTop: 16 }}>
         {!searchPerformed ? (
-          <p style={{ color: "#9aa0a6" }}>Silakan pilih tanggal</p>
+          <p style={{ color: "#9aa0a6" }}>Silahkan pilih tanggal</p>
         ) : loadingPid ? (
           <p style={{ color: "#9aa0a6" }}>Sabar yak...</p>
         ) : pidError ? (
@@ -231,12 +239,17 @@ export default function DatePickerClient() {
           <p style={{ color: "#9aa0a6" }}>Tidak ada sidang</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+              }}
+            >
               <thead>
                 <tr>
                   <th
                     style={{
-                      textAlign: "left",
+                      textAlign: "center",
                       padding: "8px 12px",
                       color: "#cfe8ea",
                     }}
@@ -245,7 +258,7 @@ export default function DatePickerClient() {
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
+                      textAlign: "center",
                       padding: "8px 12px",
                       color: "#cfe8ea",
                     }}
@@ -254,7 +267,7 @@ export default function DatePickerClient() {
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
+                      textAlign: "center",
                       padding: "8px 12px",
                       color: "#cfe8ea",
                     }}
@@ -263,7 +276,7 @@ export default function DatePickerClient() {
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
+                      textAlign: "center",
                       padding: "8px 12px",
                       color: "#cfe8ea",
                     }}
@@ -272,7 +285,7 @@ export default function DatePickerClient() {
                   </th>
                   <th
                     style={{
-                      textAlign: "left",
+                      textAlign: "center",
                       padding: "8px 12px",
                       color: "#cfe8ea",
                     }}
@@ -285,7 +298,8 @@ export default function DatePickerClient() {
                 {pidResults.map((r, i) => (
                   <tr
                     key={i}
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+                    // style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+                    style={{ borderTop: "1px solid lightGrey" }}
                   >
                     <td style={{ padding: "10px 12px" }}>{i + 1}</td>
                     <td style={{ padding: "10px 12px" }}>
