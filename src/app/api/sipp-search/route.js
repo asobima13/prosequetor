@@ -20,6 +20,7 @@ function stripTags2(s) {
 async function fetchHtml(url, opts) {
   const res = await fetch(url, opts);
   if (!res.ok) throw new Error(`fetch ${url} failed ${res.status}`);
+  console.log("resssss: ", res);
   return await res.text();
 }
 
@@ -42,19 +43,44 @@ async function searchPerkaraWithPuppeteer(nomor) {
     await page.type("input#search-box", nomor);
 
     // Submit the search (assuming there's a form or button)
-    await page.keyboard.press("Enter");
+    await page.click("input#search-btn1");
+    // await page.keyboard.press("Enter");
+
+    // innerText.includes("Hello Ajahne")
+    // await page.waitForNetworkIdle();
+    // await page
+    //   .waitForFunction("div.total-perkara")
+    //   .innerHTML.includes("Total : 1 Perkara");
 
     // Wait for results
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // await page.waitForSelector(
-    //   "#tablePerkaraAll > tbody > tr:nth-child(2) > td:nth-child(5)"
-    // );
+    await page.waitForSelector("#tablePerkaraAll > tbody > tr:nth-child(2)");
+
     const content = await page.$eval(
-      "#tablePerkaraAll > tbody > tr:nth-child(2) > td:nth-child(5)",
-      (el) => el.textContent
+      "#tablePerkaraAll > tbody > tr:nth-child(2)",
+      (el) =>
+        /(?:\<td\>\d+\<\/td\>\<td\>\d+\/[\w\.\-]+\/\d+\/[\w\s]+\<\/td\>\<td\s+\w+\=\"\w+\"\>[\d\w\s]+\<\/td\>\<td\>)([\w\s]+)(?:<\/td\>\<td\>Penuntut Umum\:\<br\>)(.+)(?:\<br\>\<br\>Terdakwa:\<br\>)([\w\s\.\,\'\(\)]+)(?:\<\/td\>.+href\=\")(https.+)(?:\".+)/.exec(
+          el.innerHTML
+        )
+      // hasil = el.innerHTML
     );
+    // .then(
+    //   /(?:\<td\>\d+\<\/td\>\<td\>\d+\/[\w\.\-]+\/\d+\/[\w\s]+\<\/td\>\<td\s+\w+\=\"\w+\"\>[\d\w\s]+\<\/td\>\<td\>)([\w\s]+)(?:<\/td\>\<td\>Penuntut Umum\:\<br\>)(.+)(?:\<br\>\<br\>Terdakwa:\<br\>)([\w\s\.\,\']+)(?:\<\/td\>.+href\=\")(https.+)(?:\".+)/.exec(
+    //     hasil
+    //   )
+    // );
+    // console.log("test:", testing);
+    // const content = await page.$eval(
+    //   "#tablePerkaraAll > tbody > tr:nth-child(2) > td:nth-child(5)",
+    //   (el) => el.textContent
+    // );
+    // const content2 = await page.$eval(
+    //   "#tablePerkaraAll > tbody > tr:nth-child(2) > td:nth-child(4)",
+    //   (el) => el.innerHTML
+    // );
     // const content = await page.content();
+
     return content;
   } catch (error) {
     console.error("Puppeteer error:", error);
@@ -88,7 +114,10 @@ export async function POST(req) {
       })
       .filter(Boolean);
 
-    const pidRows = parsed.filter((cols) => cols[2] && /Pid/i.test(cols[2]));
+    const pidRows = parsed.filter(
+      (cols) => cols[2] && /Pid\.B|Pid\.Sus/.test(cols[2])
+    );
+    console.log("pidRows: ", pidRows);
 
     const enriched = [];
     for (const cols of pidRows) {
@@ -100,29 +129,46 @@ export async function POST(req) {
       };
       try {
         // try to enrich by searching the perkara list with puppeteer
-        const html2 = await searchPerkaraWithPuppeteer(item.nomor);
+        const content = await searchPerkaraWithPuppeteer(item.nomor);
 
-        if (html2) {
+        if (content) {
           // Extract jaksa name from text between "Penuntut Umum:" and "Terdakwa:"
-          const jaksaMatch = html2.match(
-            /Penuntut Umum:\s*([^<]*?)\s*Terdakwa:/
-          );
-          item.jaksa = jaksaMatch
-            ? stripTags2(jaksaMatch[1]).trim()
-            : "Nama Jaksa";
+          // const jaksaMatch = content[2].match(
+          //   /Penuntut Umum:\s*([^<]*?)\s*Terdakwa:/
+          // );
+          item.klasifikasiPerkara = content[1] || "Klasifikasi Perkara";
+
+          item.jaksa = /\<br\>/.test(content[2])
+            ? content[2].split(/\<br\>/)
+            : content[2];
+          // item.jaksa = jaksaMatch
+          //   ? stripTags2(jaksaMatch[1]).trim()
+          //   : "Nama Jaksa";
 
           // Extract defendant name from text after "Terdakwa:"
-          const defendantMatch = html2.match(/Terdakwa:\s*([^<]*?)(?:\s*<|$)/);
-          item.defendant = defendantMatch
-            ? stripTags2(defendantMatch[1]).trim()
-            : "Nama Terdakwa";
+          item.defendant = /\<br\>/.test(content[3])
+            ? content[3].split(/\<br\>/)
+            : content[3];
+
+          // const defendantMatch = content[3].match(
+          //   /Terdakwa:\s*([^<]*?)(?:\s*<|$)/
+          // );
+          // item.defendant = defendantMatch
+          //   ? stripTags2(defendantMatch[1]).trim()
+          //   : "Nama Terdakwa";
+          console.log("Contenttttt!!!!");
+          console.log(content);
         } else {
-          item.defendant = "Nama Terdakwa";
-          item.jaksa = "Nama Jaksa";
+          item.defendant = ["Nama Terdakwa"];
+          item.jaksa = ["Nama Jaksa"];
+          item.klasifikasiPerkara = "Klasifikasi Perkara";
+          console.log("Elseeeee!!!");
         }
       } catch (e) {
-        item.defendant = "Nama Terdakwa";
-        item.jaksa = "Nama Jaksa";
+        item.defendant = ["Nama Terdakwa"];
+        item.jaksa = ["Nama Jaksa"];
+        item.klasifikasiPerkara = "Klasifikasi Perkara";
+        console.log("cetchErr!!!");
       }
       enriched.push(item);
     }

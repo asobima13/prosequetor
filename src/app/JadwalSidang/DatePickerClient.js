@@ -36,6 +36,53 @@ function ddmmyyyyToIso(ddmmyyyy) {
   return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
 }
 
+function formatList(content, defaultText) {
+  if (!content || JSON.stringify(content) === JSON.stringify(defaultText)) {
+    return content;
+  }
+
+  if (typeof content === "string") {
+    if (content.includes("Terdakwa")) {
+      return (
+        <ol style={{ margin: 0, paddingLeft: "20px" }}>
+          <li>Disamarkan</li>
+        </ol>
+      );
+    }
+    // Parse string into items
+    let items;
+    if (/\d+\.\s/.test(content)) {
+      items = content
+        .split(/\d+\.\s/)
+        .filter((item) => item.trim())
+        .map((item) => item.trim());
+    } else {
+      items = content
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+    }
+    return (
+      <ol style={{ margin: 0, paddingLeft: "20px" }}>
+        {items.map((item, idx) => (
+          <li key={idx}>{item}</li>
+        ))}
+      </ol>
+    );
+  } else if (Array.isArray(content)) {
+    const items = content.map((item) => item.trim().replace(/^\d+\.\s*/, ""));
+    return (
+      <ol style={{ margin: 0, paddingLeft: "20px" }}>
+        {items.map((item, idx) => (
+          <li key={idx}>{item}</li>
+        ))}
+      </ol>
+    );
+  } else {
+    return content;
+  }
+}
+
 export default function DatePickerClient() {
   const todayIso = new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD format in local timezone
   const [selected, setSelected] = useState(todayIso);
@@ -91,6 +138,7 @@ export default function DatePickerClient() {
       if (!res.ok) throw new Error("fetch failed");
       const data = await res.json();
       setPidResults(data.rows || []);
+      console.log("data.rows: ", data.rows);
     } catch (err) {
       setPidError(String(err));
     } finally {
@@ -108,7 +156,7 @@ export default function DatePickerClient() {
 
   return (
     <section className="section" style={{ textAlign: "center" }}>
-      <h2>Tanggal {isoToDisplay(selected)}</h2>
+      <h3 style={{ opacity: "0.85" }}>Tanggal {isoToDisplay(selected)}</h3>
 
       <div
         style={{
@@ -228,11 +276,17 @@ export default function DatePickerClient() {
         </div>
       )}
 
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 25 }}>
         {!searchPerformed ? (
           <p style={{ color: "#9aa0a6" }}>Silahkan pilih tanggal</p>
         ) : loadingPid ? (
-          <p style={{ color: "#9aa0a6" }}>Sabar yak...</p>
+          <p style={{ color: "#9aa0a6" }}>
+            Mohon bersabar, konten sedang dimuat...
+            <br />
+            <br />
+            "Sesungguhnya Allah beserta orang-orang yang sabar."
+            <br />- QS. Al-Baqarah, Ayat 153 -
+          </p>
         ) : pidError ? (
           <p style={{ color: "#f88" }}>Error: {pidError}</p>
         ) : pidResults.length === 0 ? (
@@ -264,6 +318,15 @@ export default function DatePickerClient() {
                     }}
                   >
                     Nomor Perkara
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "center",
+                      padding: "8px 12px",
+                      color: "#cfe8ea",
+                    }}
+                  >
+                    Klasifikasi Perkara
                   </th>
                   <th
                     style={{
@@ -306,13 +369,16 @@ export default function DatePickerClient() {
                       {r.nomor || (r.raw && r.raw[2]) || ""}
                     </td>
                     <td style={{ padding: "10px 12px" }}>
-                      {r.defendant || "Nama Terdakwa"}
+                      {r.klasifikasiPerkara || "Klasifikasi Perkara"}
+                    </td>
+                    <td style={{ padding: "10px 12px", textAlign: "left" }}>
+                      {formatList(r.defendant, ["Nama Terdakwa"])}
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       {r.agenda || (r.raw && r.raw[5]) || ""}
                     </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      {r.jaksa || "Nama Jaksa"}
+                    <td style={{ padding: "10px 12px", textAlign: "left" }}>
+                      {formatList(r.jaksa, ["Nama Jaksa"])}
                     </td>
                   </tr>
                 ))}

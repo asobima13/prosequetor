@@ -14,7 +14,7 @@ export default function Page() {
         style={{ textAlign: "center", marginBottom: "1.5rem" }}
       >
         <h1>Jadwal Sidang Jaksa</h1>
-        <p style={{ opacity: 0.85 }}>di Pengadilan Negeri Selong</p>
+        <h3 style={{ opacity: 0.85 }}>di Pengadilan Negeri Selong</h3>
       </div>
       <div className="card">
         <DatePickerClient />

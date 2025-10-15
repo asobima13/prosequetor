@@ -85,8 +85,10 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
                 <th
                   style={{
                     textAlign: "left",
-                    padding: "8px 12px",
+                    padding: "12px 16px",
                     color: "#cfe8ea",
+                    borderBottom: "2px solid #cfe8ea",
+                    fontWeight: "bold",
                   }}
                 >
                   No
@@ -94,8 +96,10 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
                 <th
                   style={{
                     textAlign: "left",
-                    padding: "8px 12px",
+                    padding: "12px 16px",
                     color: "#cfe8ea",
+                    borderBottom: "2px solid #cfe8ea",
+                    fontWeight: "bold",
                   }}
                 >
                   Tanggal Sidang
@@ -103,8 +107,10 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
                 <th
                   style={{
                     textAlign: "left",
-                    padding: "8px 12px",
+                    padding: "12px 16px",
                     color: "#cfe8ea",
+                    borderBottom: "2px solid #cfe8ea",
+                    fontWeight: "bold",
                   }}
                 >
                   Nomor Perkara
@@ -112,8 +118,10 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
                 <th
                   style={{
                     textAlign: "left",
-                    padding: "8px 12px",
+                    padding: "12px 16px",
                     color: "#cfe8ea",
+                    borderBottom: "2px solid #cfe8ea",
+                    fontWeight: "bold",
                   }}
                 >
                   Sidang Keliling
@@ -121,8 +129,10 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
                 <th
                   style={{
                     textAlign: "left",
-                    padding: "8px 12px",
+                    padding: "12px 16px",
                     color: "#cfe8ea",
+                    borderBottom: "2px solid #cfe8ea",
+                    fontWeight: "bold",
                   }}
                 >
                   Ruangan
@@ -130,8 +140,10 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
                 <th
                   style={{
                     textAlign: "left",
-                    padding: "8px 12px",
+                    padding: "12px 16px",
                     color: "#cfe8ea",
+                    borderBottom: "2px solid #cfe8ea",
+                    fontWeight: "bold",
                   }}
                 >
                   Agenda
@@ -142,14 +154,17 @@ export default async function ExternalPidTable({ datePath = "1/13/10/2025" }) {
               {pidRows.map((cols, i) => (
                 <tr
                   key={i}
-                  style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+                  style={{
+                    borderBottom: "1px solid rgba(255,255,255,0.04)",
+                    backgroundColor: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent",
+                  }}
                 >
-                  <td style={{ padding: "10px 12px" }}>{cols[0] || i + 1}</td>
-                  <td style={{ padding: "10px 12px" }}>{cols[1] || ""}</td>
-                  <td style={{ padding: "10px 12px" }}>{cols[2] || ""}</td>
-                  <td style={{ padding: "10px 12px" }}>{cols[3] || ""}</td>
-                  <td style={{ padding: "10px 12px" }}>{cols[4] || ""}</td>
-                  <td style={{ padding: "10px 12px" }}>{cols[5] || ""}</td>
+                  <td style={{ padding: "12px 16px", color: "#e8eaed" }}>{cols[0] || i + 1}</td>
+                  <td style={{ padding: "12px 16px", color: "#e8eaed" }}>{cols[1] || ""}</td>
+                  <td style={{ padding: "12px 16px", color: "#e8eaed" }}>{cols[2] || ""}</td>
+                  <td style={{ padding: "12px 16px", color: "#e8eaed" }}>{cols[3] || ""}</td>
+                  <td style={{ padding: "12px 16px", color: "#e8eaed" }}>{cols[4] || ""}</td>
+                  <td style={{ padding: "12px 16px", color: "#e8eaed" }}>{cols[5] || ""}</td>
                 </tr>
               ))}
             </tbody>
